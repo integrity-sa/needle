@@ -68,9 +68,11 @@ class RemoteOperations(object):
         if force: delete(path)
         elif self.dir_exist(path): delete(path)
 
-    def dir_list_recursive(self, path):
+    def dir_list(self, path, recursive=False):
         path = Utils.escape_path(path)
-        cmd = 'ls -alR %s' % path
+        opts = ''
+        if recursive: opts = '-alR'
+        cmd = 'ls {opts} {path}'.format(opts=opts, path=path)
         return self.command_blocking(cmd)
 
     def dir_reset(self, path):
@@ -119,6 +121,7 @@ class RemoteOperations(object):
         def daemon(module, cmd):
             """Daemon used to run the command so to avoid blocking the UI"""
             # Run command
+            cmd += ' & echo $!'
             out = self.command_blocking(cmd)
             # Parse PID of the process
             try:
